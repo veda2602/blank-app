@@ -88,7 +88,7 @@ def process_file(uploaded_file):
     df.insert(0, "P/N Assy", pn_assy)
     df.insert(1, "S/N Assy", sn_assy)
 
-    # ---------- SOURCE FILE (INTERNAL) ----------
+    # ---------- SOURCE FILE (INTERNAL ONLY) ----------
     df.insert(0, "Source File", uploaded_file.name)
 
     return df
@@ -106,11 +106,9 @@ if uploaded_files:
         # ---------- GABUNG SEMUA FILE ----------
         final_df = pd.concat(all_results, ignore_index=True)
 
-        # ---------- CLEAN FINAL OUTPUT ----------
-        # Hapus kolom Source File
+        # ---------- CLEAN FINAL ----------
         final_df = final_df.drop(columns=["Source File"], errors="ignore")
 
-        # Hapus duplicate berdasarkan Batch
         final_df = (
             final_df
             .drop_duplicates(subset=["Batch"], keep="first")
@@ -127,26 +125,31 @@ if uploaded_files:
             index=False
         ).encode("utf-8")
 
-        csv_excel = final_df.to_csv(
+        csv_comma = final_df.to_csv(
             index=False,
             sep=","
-        ).encode("utf-8-sig")  # Excel friendly
+        ).encode("utf-8-sig")
 
-        col1, col2 = st.columns(2)
+        csv_semicolon = final_df.to_csv(
+            index=False,
+            sep=";"
+        ).encode("utf-8-sig")  # 🔥 PALING AMAN UNTUK EXCEL INDONESIA
+
+        col1, col2, col3 = st.columns(3)
 
         with col1:
             st.download_button(
                 "⬇️ Download CSV 🙏",
                 csv_standard,
-                file_name="Data_NLA_Hasil_Standar.csv",
+                file_name="Data NLA Veda Sepele🙏.csv",
                 mime="text/csv"
             )
 
         with col2:
             st.download_button(
-                "⬇️ Download CSV Excel Ngrepoti (Comma Delimited)🙏",
-                csv_excel,
-                file_name="Data_NLA_Hasil_Excel_Comma.csv",
+                "⬇️ Download CSV Excel Ngrepoti🙏 (;)",
+                csv_semicolon,
+                file_name="Data NLA Veda Sepele (;)🙏.csv",
                 mime="text/csv"
             )
 
