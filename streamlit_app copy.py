@@ -8,7 +8,7 @@ st.title("Program Olah Data NLA by Veda 😂😍🙏")
 
 # ================= UPLOAD FILE =================
 uploaded_files = st.file_uploader(
-    "Silakan Upload Filenya 🙏 (.xls / .txt)",
+    "Silakan Upload Filenya 🙏 (.xls)",
     type=["xls", "txt"],
     accept_multiple_files=True
 )
@@ -88,7 +88,7 @@ def process_file(uploaded_file):
     df.insert(0, "P/N Assy", pn_assy)
     df.insert(1, "S/N Assy", sn_assy)
 
-    # ---------- SOURCE FILE (INTERNAL) ----------
+    # (sementara) Source File untuk tracking internal
     df.insert(0, "Source File", uploaded_file.name)
 
     return df
@@ -108,7 +108,8 @@ if uploaded_files:
 
         # ---------- CLEAN FINAL OUTPUT ----------
         # Hapus kolom Source File
-        final_df = final_df.drop(columns=["Source File"], errors="ignore")
+        if "Source File" in final_df.columns:
+            final_df = final_df.drop(columns=["Source File"])
 
         # Hapus duplicate berdasarkan Batch
         final_df = (
@@ -119,40 +120,20 @@ if uploaded_files:
 
         # ---------- DISPLAY ----------
         st.success(f"{len(uploaded_files)} file berhasil diproses ✅")
-        st.subheader("Hasil Akhir")
+        st.subheader("Hasil Akhir (Batch Unik)")
         st.dataframe(final_df, use_container_width=True)
 
         # ---------- DOWNLOAD ----------
-        csv_standard = final_df.to_csv(
-            index=False
-        ).encode("utf-8")
-
-        csv_excel = final_df.to_csv(
-            index=False,
-            sep=","
-        ).encode("utf-8-sig")  # Excel friendly
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.download_button(
-                "⬇️ Download CSV 🙏",
-                csv_standard,
-                file_name="Data_NLA_Hasil_Standar.csv",
-                mime="text/csv"
-            )
-
-        with col2:
-            st.download_button(
-                "⬇️ Download CSV Excel Ngrepoti (Comma Delimited)🙏",
-                csv_excel,
-                file_name="Data_NLA_Hasil_Excel_Comma.csv",
-                mime="text/csv"
-            )
+        output = final_df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            "Download hasil (CSV) 🙏",
+            output,
+            file_name="Data NLA Hasil Olahan Program Veda Sepele🙏.csv",
+            mime="text/csv"
+        )
 
     except Exception as e:
         st.error("Terjadi error saat memproses file ❌")
         st.exception(e)
-
 else:
     st.info("Silakan upload satu atau lebih file 🙏")
